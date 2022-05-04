@@ -1,4 +1,4 @@
-# Awesome Project Build with TypeORM
+# Node, Typescript, GraphQl, Typeorm & MYSQL
 
 Steps to run this project:
 
