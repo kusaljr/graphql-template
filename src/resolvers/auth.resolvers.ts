@@ -1,9 +1,7 @@
-import { Arg, Ctx, Field, Mutation, ObjectType, Query, Resolver, UseMiddleware } from "type-graphql";
-import { User } from "../entity/User";
 import { compare, hash } from "bcryptjs";
 import { sign } from "jsonwebtoken";
-import { MyContext } from "../contexts/MyContext";
-import { isAuth } from "../../src/middleware/isAuth";
+import { User } from "../../src/entity/User";
+import { Arg, Field, Mutation, ObjectType } from "type-graphql";
 
 @ObjectType()
 class LoginResponse{
@@ -11,33 +9,11 @@ class LoginResponse{
     accessToken: string
 }
 
-
-@Resolver()
-export class UserResolvers{
-    @Query(()=>String)
-    hello(){
-        return 'hi'
-    }
-
-
-    @Query(()=>String)
-    @UseMiddleware(isAuth)
-    protectedHello(
-        @Ctx() {payload} : MyContext
-    ){
-        return `Hello from protected! Your user id is ${payload?.userId}`
-    }
-
-    @Query(()=>[User])
-    users(){
-        return User.find()
-    }
-
+export class AuthResolvers{
     @Mutation(()=>LoginResponse)
     async login(
         @Arg('email') email: string,
         @Arg('password') password: string,
-        @Ctx() {res}: MyContext
     ): Promise<LoginResponse>{
         const user = await User.findOne({
             where:{
@@ -53,11 +29,8 @@ export class UserResolvers{
         if(!isValid){
             throw new Error("Password do not match!");
         }
-        res.cookie("jid", sign({
-            userId: user.id, email: user.email
-        }, 'verySecret', {expiresIn: '7d'}), {httpOnly: true} )
         return {
-            accessToken: sign({userId: user.id, email: user.email}, 'secret',{expiresIn: '15m'})
+            accessToken: sign({userId: user.id, email: user.email, role: user.role}, 'secret',{expiresIn: '15m'})
         }
     }
 
