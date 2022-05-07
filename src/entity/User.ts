@@ -1,5 +1,6 @@
-import { Entity, PrimaryGeneratedColumn, Column, BaseEntity } from "typeorm";
+import { Entity, PrimaryGeneratedColumn, Column, BaseEntity, OneToOne, JoinColumn } from "typeorm";
 import { ObjectType, Field, Int } from "type-graphql";
+import { Media } from "./Media";
 
 export enum Roles{
   ADMIN = "admin",
@@ -31,4 +32,9 @@ export class User extends BaseEntity {
   @Field()
   @Column( {default: 99})
   age: number
+
+  @Field({nullable: true})
+  @OneToOne(()=>Media)
+  @JoinColumn()
+  profile_pic!: Media
 }

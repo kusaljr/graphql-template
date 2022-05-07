@@ -7,7 +7,9 @@ export class AdminResolvers{
     @Query(()=>[User])
     @UseMiddleware(isAdminAuth)
     async returnAllUser(){
-        const data = await User.find()
+        const data = await User.find({
+            relations:['profile_pic']
+        })
         return data
     }
 }

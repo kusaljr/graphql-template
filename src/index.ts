@@ -6,13 +6,14 @@ import { UserResolvers } from './resolvers/user.resolvers';
 import { AppDataSource } from "./data-source";
 import { AdminResolvers } from "./resolvers/admin.resolvers";
 import { AuthResolvers } from "./resolvers/auth.resolvers";
+import { graphqlUploadExpress } from "graphql-upload";
 
 (async ()=>{
     const app = express()
 
-    app.get('/', (_req,res)=>{
-        res.send('hello')
-    })
+
+    app.use("/uploads", express.static("images"));
+
 
     await AppDataSource.initialize()
 
@@ -20,8 +21,10 @@ import { AuthResolvers } from "./resolvers/auth.resolvers";
         schema: await buildSchema({
             resolvers: [UserResolvers, AdminResolvers, AuthResolvers]
         }),
-        context: ({req,res})=>({req,res})
+        context: ({req,res})=>({req,res}),
+
     })
+    app.use(graphqlUploadExpress({ maxFileSize: 10000000, maxFiles: 10 }));
 
     await apolloSever.start()
 
